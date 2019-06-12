@@ -8,6 +8,10 @@ import com.rakuten.product.domain.vo.CategoryVO;
 @Component
 public class CategoryBuilder {
 
+	/**
+	 * @param categoryVO
+	 * @return category built from categoryVO
+	 */
 	public Category buildCategoryFromCategoryVO(CategoryVO categoryVO) {
 		return GenericBuilder.of(Category::new)
 				.with(Category::setName, categoryVO.getName())

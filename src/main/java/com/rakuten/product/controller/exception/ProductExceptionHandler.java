@@ -3,6 +3,7 @@ package com.rakuten.product.controller.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -33,6 +34,12 @@ public class ProductExceptionHandler extends Exception {
 	public ResponseEntity<ResponseError> handleMethodNotSupportes(Exception e) {
 		ResponseError responseError = new ResponseError(HttpStatus.METHOD_NOT_ALLOWED.value(), "METHOD_NOT_ALLOWED");
 		return new ResponseEntity<>(responseError, HttpStatus.METHOD_NOT_ALLOWED);
+	}
+	
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ResponseError> handleMethodArgumentNotValidException(Exception e){
+		ResponseError responseError = new ResponseError(HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENTS");
+		return new ResponseEntity<>(responseError, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler

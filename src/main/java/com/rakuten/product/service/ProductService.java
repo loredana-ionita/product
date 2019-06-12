@@ -29,44 +29,57 @@ public class ProductService {
 	@Autowired
 	ProductBuilder productBuilder;
 
+	/**
+	 * @param productVO
+	 * @return saved product
+	 */
 	public Product saveProduct(ProductVO productVO) {
 		return productRepository.save(productBuilder.buildProductFromProductVO(productVO));
 	}
 
+	
+	/**
+	 * @return product list from database
+	 */
 	public List<Product> getProducts() {
 		return productRepository.findAll();
 	}
 
+	
+	/**
+	 * @param productId
+	 * @param categoryIds
+	 * 
+	 * assign list of categories to a product with productId
+	 * 
+	 * @return 
+	 */
 	public BasicResponseVO assignCategories(String productId, List<String> categoryIds) {
-		BasicResponseVO basicResponseVO = new BasicResponseVO();
+		return productRepository.findById(productId).map(product -> {
+			BasicResponseVO basicResponseVO = new BasicResponseVO();
 
-		Optional<Product> productOptional = productRepository.findById(productId);
-		if (productOptional.isPresent()) {
-			Product product = productOptional.get();
 			List<Category> categories = new ArrayList<>();
 
 			if (product.getCategoryList() != null) {
 				categories = product.getCategoryList();
 			}
-
 			for (String categoryId : categoryIds) {
 				Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
 				if (categoryOptional.isPresent() && !isIncluded(categoryOptional.get(), categories)) {
 					categories.add(categoryOptional.get());
-				} 
+				}
 			}
-
 			if (!categories.isEmpty()) {
 				product.setCategoryList(categories);
 				productRepository.save(product);
 			}
-		}else {
-			throw new ProductNotFoundException(productId);
-		}
 
-		basicResponseVO.setStatus(HttpStatus.OK);
-		return basicResponseVO;
+			basicResponseVO.setStatus(HttpStatus.OK);
+
+			return basicResponseVO;
+		}).orElseThrow(ProductNotFoundException::new);
 	}
+	
 
 	private Boolean isIncluded(Category category, List<Category> categories) {
 		for (Category myCategory : categories) {
@@ -77,6 +90,7 @@ public class ProductService {
 		return false;
 	}
 
+	
 	private Category getCategory(String categoryId, List<Category> categories) {
 		for (Category category : categories) {
 			if (categoryId.equals(category.getId())) {
@@ -86,14 +100,19 @@ public class ProductService {
 		return null;
 	}
 
+	
+	/** 
+	 * @param productId
+	 * @param categoryIds
+	 * 
+	 * remove list of categories for a product with productId
+	 * 
+	 * @return
+	 */
 	public BasicResponseVO removeCategories(String productId, List<String> categoryIds) {
-		BasicResponseVO basicResponseVO = new BasicResponseVO();
-
-		Boolean updated = false;
-
-		Optional<Product> productOptional = productRepository.findById(productId);
-		if (productOptional.isPresent()) {
-			Product product = productOptional.get();
+		return productRepository.findById(productId).map(product -> {
+			BasicResponseVO basicResponseVO = new BasicResponseVO();
+			Boolean updated = false;
 
 			List<Category> categoryList = product.getCategoryList();
 			if (!categoryList.isEmpty()) {
@@ -111,11 +130,20 @@ public class ProductService {
 			} else {
 				basicResponseVO.getMessages().add("The product doesn't have any category.");
 			}
-		} else {
-			throw new ProductNotFoundException(productId);
-		}
-		basicResponseVO.setStatus(HttpStatus.OK);
-		return basicResponseVO;
+
+			basicResponseVO.setStatus(HttpStatus.OK);
+			return basicResponseVO;
+		}).orElseThrow(ProductNotFoundException::new);
+	}
+	
+	/**
+	 * @param productId
+	 * 
+	 * remove product by productId
+	 * 
+	 */
+	public void removeProduct(String productId) {
+		productRepository.deleteById(productId);
 	}
 
 }

@@ -15,6 +15,10 @@ public class CategoryController {
 	@Autowired
 	CategoryService categoryService;
 
+	/**
+	 * @param categoryVO
+	 * @return saved category
+	 */
 	@PostMapping(value = "/category")
 	public Category saveCategory(@RequestBody CategoryVO categoryVO) {
 		return categoryService.saveCatalog(categoryVO);

@@ -17,6 +17,10 @@ public class CategoryService {
 	@Autowired
 	CategoryBuilder categoryBuilder;
 
+	/**
+	 * @param categoryVO
+	 * @return saved catalog
+	 */
 	public Category saveCatalog(CategoryVO categoryVO) {
 		return categoryRepository.save(categoryBuilder.buildCategoryFromCategoryVO(categoryVO));
 	}
